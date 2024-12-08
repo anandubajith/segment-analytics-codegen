@@ -1,0 +1,10 @@
+events:
+  - name: login
+    properties:
+      - name: username
+        type: string
+      - name: success
+        type: bool
+  - name: logout
+    properties:
+      - name: username  

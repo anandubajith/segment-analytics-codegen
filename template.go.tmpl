@@ -1,0 +1,36 @@
+package analytics
+
+import (
+	"fmt"
+	"github.com/segmentio/analytics-go"
+)
+
+
+type AnalyticsClient struct {
+	client analytics.Client
+}
+
+func NewAnalyticsClient(writeKey string) *AnalyticsClient {
+	client := analytics.New(writeKey)
+	return &AnalyticsClient{client}
+}
+
+func (c *AnalyticsClient) Close() {
+	c.client.Close()
+}
+
+{{range .Events}}
+type {{.Name | Title}}EventProps struct {
+    {{range .Properties}}{{.Name | Title}} {{.Type | GoType}}
+    {{end}}
+}
+
+func (c *AnalyticsClient) Track{{.Name | Title}}Event(properties {{.Name | Title}}EventProps) {
+    fmt.Printf("Tracking {{.Name}} event: %+v\n", properties)
+
+		 c.client.Enqueue(analytics.Track{
+        Event:  "{{.Name}}",
+				Properties: analytics.NewProperties(){{range .Properties}}.Set("{{.Name }}", properties.{{.Name | Title}}){{end}},
+    })
+}
+{{end}}
